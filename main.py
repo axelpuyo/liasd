@@ -7,9 +7,18 @@ from layers.fully_connected_layer import fullyConnectedLayer
 from utils.dataReader import get_data
 from cgitb import grey
 
-(x_train, y_train), (x_test, y_test) = get_data("mnist")
-x_train = x_train / 255 
-x_test = x_test / 255
+(xtrain, y_train), (xtest, y_test) = get_data("mnist")
+
+xtrain = xtrain / 255 
+xtest = xtest / 255
+sz = xtrain.shape
+szt = xtest.shape
+x_train = np.zeros((sz[0], sz[1], sz[2], 2))
+x_train[:,:,:,0] = xtrain
+x_train[:,:,:,1] = xtrain - 0.5
+x_test = np.zeros((szt[0], szt[1], szt[2], 2))
+x_test[:,:,:,0] = xtest
+x_test[:,:,:,1] = xtest - 0.5
 
 x_train = x_train[:1500]
 x_test = x_test[:1500]
@@ -26,12 +35,13 @@ filter_stride = [1, 1]
 pool_size = [2, 2]
 pool_stride = [1, 1]
 
+print(x_train.shape)
+
 conv = convolutionalLayer('default', filter_size, padding, filter_stride) # 28x28x1 -> 26x26x8
 pool = poolingLayer('Max', padding, pool_size, pool_stride) # 26x26x8 -> 13x13x8
 out_p = pool.forward(conv.forward(x_train[0]))
 sz = pool.output_size[0]*pool.output_size[1]*pool.output_size[2]
 soft = fullyConnectedLayer('Softmax', sz, num_outputs) #13x13x8 -> 10
-
 
 def cnn_forward(input, label): # 1 image by 1 image
     out_c = conv.forward(input)
