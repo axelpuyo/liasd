@@ -30,10 +30,9 @@ class convolutionalLayer:
 
         for i in range(0, self.output_size[0], self.stride[0]):
             for j in range(0,self.output_size[1], self.stride[1]):
-                for k in range(self.num_channels):
-                    A = input_image[i:i+self.filter_height, j:j+self.filter_width]
-                    B = self.filter[:,:,k]
-                    output_image[i,j,k] = self.convolution_operation(A, B)
+                    A = input_image[i:i+self.filter_height, j:j+self.filter_width,:]
+                    B = self.filter
+                    output_image[i,j,:] = self.convolution_operation(A, B)
         
         self.input_image = input_image # Utile pour la backpropagation
         return output_image
@@ -46,43 +45,6 @@ class convolutionalLayer:
                 for k in range(self.num_channels):
                     gradInp[:,:,k] += self.input_image[i:i+self.filter_height, j:j+self.filter_width]*gradOut[i, j, k]
         
-        self.filter = self.filter - learning_rate*gradInp # seems not to be getting updated
+        self.filter -= learning_rate*gradInp 
+        
         return gradInp
-
-    # def __init__(self, f, size, stride):
-    #     self.num_filters = f
-    #     self.filter_size = size
-    #     self.conv_filter = np.random.randn(num_filters, filter_size, filter_size)/(filter_size**2) # Why are we normalizing by filter_size**2 ?
-
-    # def set_weights(self, weights): # In case we want to set custom filters or have a pre-trained network.
-    #     self.num_filters = weights.shape[0]
-    #     self.filter_size = weights.shape[1]
-    #     self.conv_filter = weights
-
-    # def image_region(self, image):
-    #     height, width = image.shape # Assumes single-channel image
-    #     self.image = image
-    #     for i in range(height - self.filter_size + 1): # Assumes vertical stride = 1
-    #         for j in range(width - self.filter_size + 1): # Assumes horizontal stride = 1
-    #             image_patch = image[i:(i + self.filter_size), j:(j + self.filter_size)]
-    #             yield image_patch, i, j # Generator
-    
-    # def forward_prop(self, image): 
-    #     height, width = image.shape # Assumes single-channel image
-    #     conv_out = np.zeros((height - self.filter_size + 1, width - self.filter_size + 1, self.num_filters)) # Assumes no padding (valid), stride = 1,  single channel image, 
-    #     for image_patch, i, j in self.image_region(image):
-    #         conv_out[i,j] = np.sum(image_patch*self.conv_filter, axis = (1,2)) # Assumes basic 2D convolution
-    #     return conv_out
-
-    # def back_prop(self, dL_dout, learning_rate):
-    #     '''
-        
-    #     :param dL_dout: Comes from Pooling unit
-    #     '''
-    #     dL_dinp = np.zeros(self.conv_filter.shape)
-    #     for image_patch, i, j in self.image_region(self.image):
-    #         for k in range(self.num_filters):
-    #             dL_dinp[k] += image_patch*dL_dout[i, j, k]
-        
-    #     self.conv_filter -= learning_rate*dL_dinp
-    #     return dL_dinp

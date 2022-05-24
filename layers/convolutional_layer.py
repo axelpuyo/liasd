@@ -30,7 +30,7 @@ class convolutionalLayer:
 
         for i in range(0, self.output_size[0], self.stride[0]):
             for j in range(0,self.output_size[1], self.stride[1]):
-                    A = input_image[i:i+self.filter_height, j:j+self.filter_width,:]
+                    A = input_image[i:i+self.filter_height, j:j+self.filter_width, :]
                     B = self.filter
                     output_image[i,j,:] = self.convolution_operation(A, B)
         
