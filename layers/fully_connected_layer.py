@@ -21,6 +21,9 @@ class fullyConnectedLayer:
         pass
     
     def forward(self, input):
+        '''
+        :input: square image input for now (numpy nd-array).
+        '''
         self.input_size = input.shape
         self.flat = input.flatten()
         self.Z = np.dot(self.flat, self.weights) + self.bias # Z = W*X+B
