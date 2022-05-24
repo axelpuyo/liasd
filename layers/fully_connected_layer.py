@@ -2,6 +2,11 @@ import numpy as np
 
 class fullyConnectedLayer:
     def __init__(self, distribution, n_in, n_out):
+        '''
+        :distribution: non linear unit ('Softmax', 'ReLu', 'Elu')
+        :n_in: number of input nodes (int)
+        :n_out: number of output nodes (int)
+        '''
         self.operation = distribution
         self.numInputs = n_in
         self.numOutputs = n_out
@@ -38,6 +43,10 @@ class fullyConnectedLayer:
         return self.prediction
 
     def backward(self, grad_out, learning_rate):
+        '''
+        :grad_out: previous layer gradient (numpy ndarray)
+        :learning_rate: learning rate (float)
+        '''
         for i, grad in enumerate(grad_out): # On veut grad_out[i] et i.
             if grad == 0:
                 continue
