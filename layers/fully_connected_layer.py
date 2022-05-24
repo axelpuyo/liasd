@@ -6,6 +6,7 @@ class fullyConnectedLayer:
         :distribution: non linear unit ('Softmax', 'ReLu', 'Elu')
         :n_in: number of input nodes (int)
         :n_out: number of output nodes (int)
+        #
         '''
         self.operation = distribution
         self.numInputs = n_in
