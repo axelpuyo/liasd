@@ -3,6 +3,9 @@ import scipy as sp
 
 class convolutionalLayer: 
     def __init__(self, convolution_type, filter_size, padding, stride): # Convention : height x width x channels
+        '''
+        :convolution_type: str - 'Default' for Conv2D
+        '''
         self.type = convolution_type
         self.filter_height = filter_size[0]
         self.filter_width = filter_size[1]
