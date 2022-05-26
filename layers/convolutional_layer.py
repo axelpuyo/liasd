@@ -4,7 +4,10 @@ import scipy as sp
 class convolutionalLayer: 
     def __init__(self, convolution_type, filter_size, padding, stride): # Convention : height x width x channels
         '''
-        :convolution_type: str - 'Default' for Conv2D
+        :convolution_type: Convolution type (str) - 'Default' for Conv2D
+        :filter_size: [fx, fy, fz] size of convolution window (int array)
+        :padding: [px, py, pz] size of convolution padding (int array or s'valid for no padding, 'same' makes the output matrix keep the same size as the input)
+        :stride: [sx, sy, sz] convolution window stride (int array)
         '''
         self.type = convolution_type
         self.filter_height = filter_size[0]
