@@ -2,12 +2,15 @@
 from params import *
 
 ## PREPROCESSING
+x_train = x_train / 255
+x_test = x_test / 255
+
 values, counts = np.unique(y_train, return_counts = True)
 print('labels : counts')
 for i in range(len(values)):
     print(' ', values[i], '   : ', counts[i])
 
-## 
+## MODEL CREATION
 
 conv = convolutionalLayer('default', filter_size, padding, filter_stride) # 28x28x1 -> 26x26x8
 pool = poolingLayer('Max', padding, pool_size, pool_stride, axis) ; out_c = conv.forward(x_train[0]) ; out_p = pool.forward(out_c) ; sz = pool.output_size[0]*pool.output_size[1]*pool.output_size[2]
@@ -38,6 +41,8 @@ def cnn_forward(input, label): # 1 image by 1 image
 
     return out_c, out_p, out_s, loss, acc
 
+out_c, out_p, out_s, loss, acc = cnn_forward(x_train[0], y_train[0])
+
 def cnn_train(input, label, lr): # 1 image by 1 image
     # Full forward propagation
     _, __, out, loss, acc = cnn_forward(input, label)
@@ -55,7 +60,7 @@ def cnn_train(input, label, lr): # 1 image by 1 image
 
 # _ = poolingLayer('Max', )
 lr = 0.01
-numEpochs = 10
+numEpochs = 1
 for epoch in range(numEpochs):
     print('Running Epoch : %d' % (epoch+1))
 
@@ -86,7 +91,9 @@ for epoch in range(numEpochs):
 print('**Testing phase')
 loss = 0
 num_correct = 0
-for im, label in zip(x_test, y_test):
+for i, (im, label) in enumerate(zip(x_test, y_test)):
+    if i % 100 == 0:
+        print('%d step out of 15', (i/100 + 1)) 
     _, __, ___, dL, dA = cnn_forward(im, label)
     loss += dL
     num_correct += dA

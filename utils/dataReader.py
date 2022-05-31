@@ -14,7 +14,7 @@ def get_data(str, num, dims):
         if dims != 0:
             import numpy as np
             x_train = np.repeat(x_train[..., np.newaxis], dims, axis = -1)
-            x_test = np.repeat(x_train[..., np.newaxis], dims, axis = -1)
+            x_test = np.repeat(x_test[..., np.newaxis], dims, axis = -1)
         return (x_train, y_train), (x_test, y_test)
     else:
         pass
