@@ -1,47 +1,31 @@
-import numpy as np
-import matplotlib.pyplot as plt
+## IMPORTS
+from params import *
 
-from layers.convolutional_layer import convolutionalLayer
-from layers.pooling_layer import poolingLayer
-from layers.fully_connected_layer import fullyConnectedLayer
-from utils.dataReader import get_data
-from cgitb import grey
+## PREPROCESSING
+values, counts = np.unique(y_train, return_counts = True)
+print('labels : counts')
+for i in range(len(values)):
+    print(' ', values[i], '   : ', counts[i])
 
-(xtrain, y_train), (xtest, y_test) = get_data("mnist")
-
-xtrain = xtrain / 255 
-xtest = xtest / 255
-sz = xtrain.shape
-szt = xtest.shape
-x_train = np.zeros((sz[0], sz[1], sz[2], 2))
-x_train[:,:,:,0] = xtrain
-x_train[:,:,:,1] = xtrain - 0.5
-x_test = np.zeros((szt[0], szt[1], szt[2], 2))
-x_test[:,:,:,0] = xtest
-x_test[:,:,:,1] = xtest - 0.5
-
-x_train = x_train[:1500]
-x_test = x_test[:1500]
-y_train = y_train[:1500]
-y_test = y_test[:1500]
-
-num_outputs = len(np.unique(y_test))
-input_height = x_train[0].shape[0]
-input_width = x_train[0].shape[1]
-
-filter_size = [3, 3, 8]
-padding = [0, 0]
-filter_stride = [1, 1]
-pool_size = [2, 2]
-pool_stride = [1, 1]
-
-print(x_train.shape)
+## 
 
 conv = convolutionalLayer('default', filter_size, padding, filter_stride) # 28x28x1 -> 26x26x8
-pool = poolingLayer('Max', padding, pool_size, pool_stride) # 26x26x8 -> 13x13x8
-out_p = pool.forward(conv.forward(x_train[0]))
-sz = pool.output_size[0]*pool.output_size[1]*pool.output_size[2]
-soft = fullyConnectedLayer('Softmax', sz, num_outputs) #13x13x8 -> 10
+pool = poolingLayer('Max', padding, pool_size, pool_stride, axis) ; out_c = conv.forward(x_train[0]) ; out_p = pool.forward(out_c) ; sz = pool.output_size[0]*pool.output_size[1]*pool.output_size[2]
+soft = fullyConnectedLayer('Softmax', sz, len(np.unique(values)))
+
+out_c = conv.forward(x_train[0])
+out_p = pool.forward(out_c)
+out_s = soft.forward(out_p)
+
+loss = -np.log(out_s[y_train[0]])
+
+grad0 = np.zeros(10)
+grad0[y_train[0]] = - 1/out_s[y_train[0]]
+
+grad = soft.backward(grad0, 0.01)
+grad = pool.backward(grad)
+grad = conv.backward(grad, 0.01)
+print(np.all(grad==0))
 
 def cnn_forward(input, label): # 1 image by 1 image
     out_c = conv.forward(input)

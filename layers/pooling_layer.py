@@ -1,7 +1,7 @@
 import numpy as np
 
 class poolingLayer:
-    def __init__(self, operation, padding, mask_size, stride):
+    def __init__(self, operation, padding, mask_size, stride, axis):
         ''' 
         Initializes a pooling layer.
 
@@ -14,6 +14,7 @@ class poolingLayer:
         self.padding = padding
         self.mask_size = mask_size
         self.stride = stride
+        self.pool_dims = axis
     
     def mask_generator(self, input):
         (height, width, num_channels) = self.input.shape
@@ -29,21 +30,21 @@ class poolingLayer:
 
     def pool(self, mask):
         if self.operation == 'Max':
-            return np.amax(mask, axis = (0,1))
+            return np.amax(mask, axis = self.pool_dims)
         elif self.operation == 'Min':
-            return np.amin(mask, axis = (0,1))
+            return np.amin(mask, axis = self.pool_dims)
         elif self.operation == 'Avg':
-            return np.average(mask, axis = (0,1))
+            return np.average(mask, axis = self.pool_dims)
         else:
             raise('Define a valid pooling operation.')
 
     def forward(self, input):
         self.input = input # Storing the original image will be useful for backpropagation
-        new_height = (input.shape[0] - self.mask_size[0] + 2*self.padding[0])//self.stride[0] + 1 # Define how many times the filter will go through the matrix
-        new_width = (input.shape[1] - self.mask_size[1] + 2*self.padding[1])//self.stride[1] + 1 # This assumes a stride of filter_size
+        output_height = (input.shape[0] - self.mask_size[0] + 2*self.padding[0])//self.stride[0] + 1 # Define how many times the filter will go through the matrix
+        output_width = (input.shape[1] - self.mask_size[1] + 2*self.padding[1])//self.stride[1] + 1 # This assumes a stride of filter_size
         num_channels = input.shape[2]
 
-        self.output_size = (new_height, new_width, num_channels)
+        self.output_size = (output_height, output_width, num_channels)
         out = np.zeros(self.output_size)
 
         for mask, i, j, k in self.mask_generator(input):
