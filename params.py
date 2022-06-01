@@ -9,7 +9,7 @@ from cgitb import grey
 
 num = 1500
 dims = 2
-(x_train, y_train), (x_test, y_test) = get_data("mnist", num, dims)
+(x_train, y_train), (x_test, y_test) = get_data('mnist', num, dims)
 
 filter_size = [3, 3, 8]
 padding = [0, 0]

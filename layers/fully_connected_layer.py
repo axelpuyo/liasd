@@ -1,7 +1,7 @@
 import numpy as np
 
 class fullyConnectedLayer:
-    def __init__(self, distribution, n_in, n_out):
+    def __init__(self, distribution, n_out):
         '''
         :distribution: non linear unit ('Softmax', 'ReLu', 'Elu')
         :n_in: number of input nodes (int)
@@ -9,10 +9,7 @@ class fullyConnectedLayer:
         #
         '''
         self.operation = distribution
-        self.numInputs = n_in
         self.numOutputs = n_out
-        self.weights = np.random.randn(n_in, n_out)/n_in
-        self.bias = np.zeros(n_out)
     
     def set_weights(self, weights):
         self.weights = weights
@@ -32,6 +29,10 @@ class fullyConnectedLayer:
         '''
         self.input_size = input.shape
         self.flat = input.flatten()
+        self.numInputs = len(self.flat)
+        self.weights = np.random.randn(self.numInputs, self.numOutputs)/self.numInputs
+        self.bias = np.zeros(self.numOutputs)
+        
         self.Z = np.dot(self.flat, self.weights) + self.bias # Z = W*X+B
         if self.operation == 'Softmax':
             (self.prediction, self.expZ) = self.soft(self.Z)
@@ -49,7 +50,7 @@ class fullyConnectedLayer:
         :learning_rate: learning rate (float)
         '''
         for i, grad in enumerate(grad_out): # On veut grad_out[i] et i.
-            if grad == 0:
+            if not grad.any():
                 continue
             # grad = dL/dY, let's backpropagate.
             expZ = np.exp(self.Z)
@@ -73,4 +74,5 @@ class fullyConnectedLayer:
             self.weights -= learning_rate*dL_dW
             self.bias -= learning_rate*dL_dB
 
+        print(dL_dX.reshape(self.input_size).shape)
         return dL_dX.reshape(self.input_size)

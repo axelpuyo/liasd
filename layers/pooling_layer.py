@@ -53,7 +53,7 @@ class poolingLayer:
         self.out = out
         return self.out
     
-    def backward(self, grad0): # This isn't taking into account the stride.
+    def backward(self, grad0, *args): # This isn't taking into account the stride.
         '''
         :grad0: previous gradient.
         '''
@@ -66,5 +66,6 @@ class poolingLayer:
                     if self.input[i + x, j + y, k] == pooled_value:
                         grad[i + x, j + y, k] = grad0[i//self.stride[0], j//self.stride[1], k]
         
+        print(grad.shape)
         return grad
         

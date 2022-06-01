@@ -1,6 +1,7 @@
-# DATASET
+## DATASET
+
 def get_data(str, num, dims):
-    if str == "mnist":
+    if str == 'mnist':
         from keras.datasets import mnist
         (x_train, y_train), (x_test, y_test) = mnist.load_data()
 
@@ -15,6 +16,9 @@ def get_data(str, num, dims):
             import numpy as np
             x_train = np.repeat(x_train[..., np.newaxis], dims, axis = -1)
             x_test = np.repeat(x_test[..., np.newaxis], dims, axis = -1)
-        return (x_train, y_train), (x_test, y_test)
-    else:
-        pass
+
+    elif str == 'colors':
+        from utils.dataset_creator import colors_load
+        (x_train, y_train), (x_test, y_test) = colors_load(1300, 200)
+    
+    return (x_train, y_train), (x_test, y_test)
