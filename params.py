@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 from layers.convolutional_layer import convolutionalLayer
 from layers.pooling_layer import poolingLayer
 from layers.fully_connected_layer import fullyConnectedLayer
+from layers.softmaxLayer import softmaxLayer
 from utils.dataReader import get_data
 from cgitb import grey
 

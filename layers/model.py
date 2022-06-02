@@ -1,4 +1,5 @@
 import numpy as np
+from torch import softmax
 
 from layers.convolutional_layer import convolutionalLayer
 from layers.pooling_layer import poolingLayer
@@ -71,22 +72,36 @@ class model:
 
         return gradients
 
-    def train(self, input, label, lr): # 1 image by 1 image
-        # Full forward propagation
+    def cross_entropy(self, y_pred, y_true):
+        loss = - np.log(y_pred[int(y_true)] + 1e-15)
+        return loss
+
+    def train(self, input, label, lr):
         predictions = self.forward(input, label)
         results = predictions[-1]
 
-        loss = -np.log(results[int(label)]) # Categorical cross entropy
+        loss = self.cross_entropy(results, label)
         accuracy = 1 if np.argmax(results) == label else 0 # If the highest probability is for the correct label, accuracy = 1, else 0.
-        # print(results)
-        # Compute initial gradient
-        grad0 = np.zeros(self.num_classes) ## Number of classification categories
+        grad0 = np.zeros(self.num_classes)
         grad0[int(label)] = -1 / results[int(label)]
 
-        # Full back propagation
         gradients = self.backward(grad0, lr)
 
         return predictions, gradients, loss, accuracy
+
+    # def delta_cross_entropy(X,y):
+    #     '''
+    #     X is the output from fully connected layer (num_examples x num_classes)
+    #     y is labels (num_examples x 1)
+    #         Note that y is not one-hot encoded vector. 
+    #         It can be computed as y.argmax(axis=1) from one-hot encoded vectors of labels if required.
+    #     '''
+    #     from layers.softmaxLayer import softmaxLayer
+    #     m = y.shape[0]
+    #     grad = softmaxLayer.softmax(X)
+    #     grad[range(m),y] -= 1
+    #     grad = grad/m
+    #     return grad
 
     def fit(self, inputs, labels, num_epochs, lr):
         for epoch in range(num_epochs):

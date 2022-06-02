@@ -8,6 +8,7 @@ model.add_layer(poolingLayer, 'Max', padding, pool_size, pool_stride, axis) ;
 output = model.forward(x_train[0], y_train[0])
 num_inputs = output[-1].flatten().shape[0]
 model.add_layer(fullyConnectedLayer, 'Softmax', num_inputs, 10)
+model.add_layer(softmaxLayer, 10)
 
 # outputs = model.forward(x_train[0], y_train[0])
 
@@ -15,7 +16,7 @@ model.add_layer(fullyConnectedLayer, 'Softmax', num_inputs, 10)
 conv = convolutionalLayer('default', filter_size, padding, filter_stride)
 out_c = conv.forward(x_train[4])
 
-plt.subplot(1,4,1)
+plt.subplot(1,2,1)
 plt.imshow(x_train[4,...,0], cmap = 'Reds')
 plt.colorbar()
 # plt.subplot(1,4,2)
@@ -39,4 +40,4 @@ plt.show()
 # plt.colorbar()
 # plt.show()
 
-model.fit(x_train, y_train, 15, 0.01)
+model.fit(x_train, y_train, 15, 0.001)
