@@ -10,71 +10,114 @@ class model:
         self.num_layers = 0
         self.last_layer_num = -1
     
-    def preprocessing(self, inputs, labels):
-        values, counts = np.unique(labels, return_counts = True)
-        self.final_outputs = len(values)
+    def preprocessing(self, x_train, x_test, y_train, y_test):
+        # if x_train.ndim < 4:
+        #     x_train = x_train[..., np.newaxis]
+        #     x_test = x_test[..., np.newaxis]
+        # if x_train.ndim > 4:
+        #     x_train = np.squeeze(x_train)
+        #     x_test = np.squeeze(x_test)
+
+        print('Normalizing samples')
+        x_train = x_train / 255
+        x_test = x_test / 255
+
+        values, counts = np.unique(y_train, return_counts = True)
+        self.num_classes = len(values)
+        print('----training----')
         print('labels : counts')
         for i in range(len(values)):
             print(' ', values[i], '   : ', counts[i])
-        
 
-    def add_layer(self, type, *args):
-        self.layers.append(type(*args))
+        values, counts = np.unique(y_test, return_counts = True)
+        self.num_classes = len(values)
+        print('----testing----')
+        print('labels : counts')
+        for i in range(len(values)):
+            print(' ', values[i], '   : ', counts[i])
+        return (x_train, y_train), (x_test, y_test)
+
+    def add_layer(self, layer_type, *args):
+        self.layers.append(layer_type(*args))
         self.num_layers += 1
         self.last_layer_num += 1
     
     def forward(self, input, label):
+        predictions = []
         for n in range(len(self.layers)):
             output = self.layers[n].forward(input)
+            predictions.append(output)
             input = output
 
-        loss = -np.log(output[int(label)]) # Cross entropy
-        acc = 1 if np.argmax(input) == label else 0 # If the highest probability is for the correct label, accuracy = 1, else 0.
-        
-        return output, loss, acc
+        return predictions
     
+    # def initialize_weights(self, input, label):
+    #     predictions = []
+    #     for n in range(len(self.layers)):
+    #         self.layers[n].initialize_weights()
+    #         output = self.layers[n].forward(input)
+    #         predictions.append(output)
+    #         if n != len(self.layers)-1:
+    #             flat = output.flatten()
+    #             self.layers[n+1].numInputs = flat.shape[0]
+    #         input = output
+
     def backward(self, input, lr):
+        gradients = []
         for n in range(len(self.layers)):
-            print(self.layers[-(n+1)])
-            output = self.layers[-(n+1)].backward(input, lr)
-            input = output
-        return output
+            gradient = self.layers[-(n+1)].backward(input, lr)
+            gradients.append(gradient)
+            input = gradient
+
+        return gradients
 
     def train(self, input, label, lr): # 1 image by 1 image
         # Full forward propagation
-        out, loss, acc = self.forward(input, label)
+        predictions = self.forward(input, label)
+        results = predictions[-1]
 
+        loss = -np.log(results[int(label)]) # Categorical cross entropy
+        accuracy = 1 if np.argmax(results) == label else 0 # If the highest probability is for the correct label, accuracy = 1, else 0.
+        # print(results)
         # Compute initial gradient
-        grad0 = np.zeros(self.final_outputs) ## Number of classification categories
-        grad0[int(label)] = -1 / out[int(label)]
+        grad0 = np.zeros(self.num_classes) ## Number of classification categories
+        grad0[int(label)] = -1 / results[int(label)]
 
         # Full back propagation
-        out_b = self.backward(input, lr)
+        gradients = self.backward(grad0, lr)
 
-        return out, out_b, loss, acc
+        return predictions, gradients, loss, accuracy
 
-    def fit(self, input, label, num_epochs, lr):
+    def fit(self, inputs, labels, num_epochs, lr):
         for epoch in range(num_epochs):
             print('Running Epoch : %d' % (epoch+1))
 
             # Shuffle the training data
-            shuffle_order = np.random.permutation(len(input))
-            input = input[shuffle_order]
-            input = input[shuffle_order]
+            # shuffle_order = np.random.permutation(len(inputs))
+            # inputs = inputs[shuffle_order]
+            # labels = labels[shuffle_order]
 
             # Training
             x = []
             y = []
             loss = 0
             num_correct = 0
-            for i, (im, label) in enumerate(zip(input, label)): # Zip returns a tuple iterator, enumerate gives an iterator that counts them and returns their value at the same time.
+            for i, (im, label) in enumerate(zip(inputs, labels)): # Zip returns a tuple iterator, enumerate gives an iterator that counts them and returns their value at the same time.
                 if i % 100 == 0: 
                     print('%d steps out of 15 steps: Average Loss %.3f and Accuracy %d%%' % ((i/100 + 1), loss / 100, num_correct)) # There's 60k images in x_train.
                     loss = 0
                     num_correct = 0
 
                 # Update loss and accuracy
-                _, __, ___, dL, dA = self.train(im, label, lr)
+                predictions, gradients, dL, dA = self.train(im, label, lr)
+                
+                bool = gradients[-1].any()
+                if i == 0:
+                    print(bool)
+                else:
+                    if not bool:
+                        print(bool)
+                
                 loss += dL
                 num_correct += dA
                 x.append((i+1)/100)

@@ -14,7 +14,7 @@ class poolingLayer:
         self.padding = padding
         self.mask_size = mask_size
         self.stride = stride
-        self.pool_dims = axis
+        self.pool_dims = axis 
     
     def mask_generator(self, input):
         (height, width, num_channels) = self.input.shape
@@ -38,34 +38,38 @@ class poolingLayer:
         else:
             raise('Define a valid pooling operation.')
 
+    def initialize_weights(self):
+        pass
+    
     def forward(self, input):
         self.input = input # Storing the original image will be useful for backpropagation
         output_height = (input.shape[0] - self.mask_size[0] + 2*self.padding[0])//self.stride[0] + 1 # Define how many times the filter will go through the matrix
-        output_width = (input.shape[1] - self.mask_size[1] + 2*self.padding[1])//self.stride[1] + 1 # This assumes a stride of filter_size
+        output_width = (input.shape[1] - self.mask_size[1] + 2*self.padding[1])//self.stride[1] + 1
         num_channels = input.shape[2]
 
         self.output_size = (output_height, output_width, num_channels)
+        self.input_size = input.shape
         out = np.zeros(self.output_size)
 
         for mask, i, j, k in self.mask_generator(input):
             out[i//self.stride[0], j//self.stride[1], k] = self.pool(mask)
         
-        self.out = out
-        return self.out
+        self.output_image = out
+        return self.output_image
     
     def backward(self, grad0, *args): # This isn't taking into account the stride.
         '''
         :grad0: previous gradient.
         '''
+        from utils import mask_generator
         grad = np.zeros(self.input.shape)
-        for mask, i, j, k in self.mask_generator(self.input):
-            pooled_value = self.out[i//self.stride[0], j//self.stride[1], k]
+        for mask, i, j, k in mask_generator.yield_mask(self.input, self.mask_size, self.stride):
+            pooled_value = self.output_image[i//self.stride[0], j//self.stride[1], k]
 
             for x in range(self.mask_size[0]):
                 for y in range(self.mask_size[1]):
                     if self.input[i + x, j + y, k] == pooled_value:
                         grad[i + x, j + y, k] = grad0[i//self.stride[0], j//self.stride[1], k]
         
-        print(grad.shape)
         return grad
         
