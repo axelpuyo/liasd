@@ -6,7 +6,7 @@ class softmaxLayer:
         self.num_outputs = n_in
     
     def softmax(self, x):
-        y = np.exp(x)
+        y = np.exp(x - np.max(x))
         z = y/np.sum(y, axis = 0)
         return x, y, z
     
@@ -19,5 +19,5 @@ class softmaxLayer:
         z = self.output
         jacobian = z * np.identity(z.size) - z.transpose() @ z
         dL_dX = grad0 @ jacobian
-        print(grad0, dL_dX)
+        # print(grad0, dL_dX)
         return dL_dX

@@ -1,4 +1,3 @@
-from unicodedata import category
 import numpy as np
 
 from layers.convolutional_layer import convolutionalLayer
@@ -52,17 +51,6 @@ class model:
 
         return predictions
     
-    # def initialize_weights(self, input, label):
-    #     predictions = []
-    #     for n in range(len(self.layers)):
-    #         self.layers[n].initialize_weights()
-    #         output = self.layers[n].forward(input)
-    #         predictions.append(output)
-    #         if n != len(self.layers)-1:
-    #             flat = output.flatten()
-    #             self.layers[n+1].numInputs = flat.shape[0]
-    #         input = output
-
     def backward(self, input, lr):
         gradients = []
         for n in range(len(self.layers)):
@@ -72,24 +60,20 @@ class model:
 
         return gradients
 
-    def categorical_cross_entropy(self, y_true, y_pred):
-        return - np.log(y_pred[int(y_true)] + 1e-15)
+    def cross_entropy(self, y_pred, y_true):
+        loss = -np.sum(y_true * np.log(y_pred + 10**-100))
 
-    def train(self, input, label, lr): # 1 image by 1 image
-        # Full forward propagation
+        return loss
+
+    def train(self, input, label, lr):
         predictions = self.forward(input, label)
         results = predictions[-1]
 
-        # Categorical cross entropy
-        loss = self.categorical_cross_entropy(label, results)
-        # print(loss)
+        loss = self.cross_entropy(results, label)
         accuracy = 1 if np.argmax(results) == label else 0 # If the highest probability is for the correct label, accuracy = 1, else 0.
-        # Compute initial gradient
-        grad0 = np.zeros(self.num_classes) ## Number of classification categories
-        grad0[int(label)] = -1 / results[int(label)]
-        # print('Gradient : ', np.min(grad0))
-
-        # Full back propagation
+        
+        grad0 = np.zeros(self.num_classes)
+        grad0[int(label)] = - 1 / results[int(label)] if np.abs(-1/results[int(label)]) < 20 else -20 
         gradients = self.backward(grad0, lr)
 
         return predictions, gradients, loss, accuracy
@@ -98,10 +82,9 @@ class model:
         for epoch in range(num_epochs):
             print('Running Epoch : %d' % (epoch+1))
 
-            # Shuffle the training data
-            # shuffle_order = np.random.permutation(len(inputs))
-            # inputs = inputs[shuffle_order]
-            # labels = labels[shuffle_order]
+            shuffle_order = np.random.permutation(len(inputs))
+            inputs = inputs[shuffle_order]
+            labels = labels[shuffle_order]
 
             # Training
             x = []
@@ -117,12 +100,12 @@ class model:
                 # Update loss and accuracy
                 predictions, gradients, dL, dA = self.train(im, label, lr)
                 
-                bool = gradients[-1].any()
-                if i == 0:
-                    print(bool)
-                else:
-                    if not bool:
-                        print(bool)
+                # bool = gradients[-1].any()
+                # if i == 0:
+                #     print(bool)
+                # else:
+                #     if not bool:
+                #         print(bool)
                 
                 loss += dL
                 num_correct += dA

@@ -1,8 +1,4 @@
-import numpy as np
-
 def yield_mask(input, window_size, window_stride):
-        if input.ndim > 3:
-            input = np.squeeze(input)
         if input.ndim == 2:
             (height, width) = input.shape
             channels = 1

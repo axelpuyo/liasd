@@ -1,17 +1,17 @@
 ## DATASET
-import numpy as np
 
 def get_data(str, num, dims):
     if str == 'cifar10':
         from keras.datasets import cifar10
         (x_train, y_train), (x_test, y_test) = cifar10.load_data()
 
-        x_train = np.squeeze(x_train[:num])
+        x_train = x_train[:num]
         y_train = y_train[:num]
-        x_test = np.squeeze(x_test[:num])
+        x_test = x_test[:num]
         y_test = y_test[:num]
 
         if dims != 0:
+            import numpy as np
             x_train = np.repeat(x_train[..., np.newaxis], dims, axis = -1)
             x_test = np.repeat(x_test[..., np.newaxis], dims, axis = -1)  
 
@@ -27,6 +27,7 @@ def get_data(str, num, dims):
         
         # put in kwargs
         if dims != 0:
+            import numpy as np
             x_train = np.repeat(x_train[..., np.newaxis], dims, axis = -1)
             x_test = np.repeat(x_test[..., np.newaxis], dims, axis = -1)
 
