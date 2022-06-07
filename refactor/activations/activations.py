@@ -1,6 +1,6 @@
 import numpy as np
 from layers.layer import Layer
-from activation import Activation
+from activations.activation import Activation
 
 class Sigmoid(Activation):
     def __init__(self):
@@ -9,7 +9,8 @@ class Sigmoid(Activation):
 
         def sigmoid_deriv(input):
             s = sigmoid(input)
-            return s * (1 - s)
+            ds = s * (1 - s)
+            return ds
 
         super().__init__(sigmoid, sigmoid_deriv)
     
