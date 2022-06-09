@@ -9,8 +9,8 @@ class Convolutional(Layer):
         self.padding = padding
         self.stride = stride
 
-        self.kernels = np.ones((kernel_shape))
-        # self.kernels = np.random.randn(*self.kernel_shape) / (self.kernel_shape[0] * self.kernel_shape[1])
+        # self.kernels = np.ones((kernel_shape))
+        self.kernels = np.random.randn(*self.kernel_shape) / (self.kernel_shape[0] * self.kernel_shape[1])
 
     def forward(self, input):
         import matplotlib.pyplot as plt

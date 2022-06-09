@@ -10,7 +10,7 @@ class Sigmoid(Activation):
         def sigmoid_deriv(input):
             s = sigmoid(input)
             ds = s * (1 - s)
-            return ds
+            return np.squeeze(ds)
 
         super().__init__(sigmoid, sigmoid_deriv)
     
