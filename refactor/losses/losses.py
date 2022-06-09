@@ -17,5 +17,5 @@ def categorical_cross_entropy(y_true, y_pred):
 
 def categorical_cross_entropy_deriv(y_true, y_pred):
     grad0 = np.zeros((10,))
-    grad0[y_true] = - 1 / y_pred[int(y_true)]
+    grad0[y_true] = - 1 / (y_pred[int(y_true)] + 1e-15)
     return grad0

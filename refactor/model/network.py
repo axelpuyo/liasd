@@ -47,7 +47,7 @@ def train(network, loss, loss_deriv, x_train, y_train, num_epochs, lr):
             if i % (x_train.shape[0] / 10) == 0:
                 if i == 0:
                     error = 0
-                print(i/10, '/10 steps -- average loss : ', float(error / (x_train.shape[0] / 10)))
+                print(i / (x_train.shape[0] / 10), '/ 10 steps -- average loss : ', float(error / (x_train.shape[0] / 10)))
                 print('pred : ', np.argmax(output), 'true : ', int(label))
                 print('p_val : ', round(float(output[np.argmax(output)]), 3) , 't_val : ', round(float(output[int(label)]), 3))
                 error = 0
