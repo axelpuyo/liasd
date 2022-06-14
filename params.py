@@ -14,7 +14,7 @@ from model.network import *
 ## DATA FETCHING & PREPROCESSING.
 dims = 1
 num = 200
-(x_train, y_train), (x_test, y_test) = get_data('mnist', num, dims)
+(x_train, y_train), (x_test, y_test) = get_data('colors', num, dims)
 (x_train, y_train), (x_test, y_test) = preprocessing(x_train, x_test, y_train, y_test)
 
 ## MODEL PARAMETERS.

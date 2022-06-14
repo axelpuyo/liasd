@@ -23,7 +23,8 @@ class Softmax(Layer):
         """
         Sz = self.output
         D = -np.outer(Sz, Sz) + np.diag(Sz.flatten())
-        return D @ np.squeeze(grad0)
+        # return D @ np.squeeze(grad0)
+        return D @ grad0.T
     
     # %--- THIS DOESN'T WORK BUT I DON'T KNOW WHY ---%
     # def backward(self, grad0, *args):

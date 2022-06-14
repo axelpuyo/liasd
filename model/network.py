@@ -58,6 +58,7 @@ def train(network, loss, loss_deriv, x_train, y_train, num_epochs, lr):
                 print('p_val : ', round(float(output[np.argmax(output)]), 3) , 't_val : ', round(float(output[int(label)]), 3))
                 error = 0
 
+            print('here', output.shape)
             grad = loss_deriv(label, output)
             for layer in reversed(network):
                 grad = layer.backward(grad, lr)
