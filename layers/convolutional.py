@@ -28,13 +28,13 @@ class Convolutional(Layer):
     def backward(self, output_gradient, lr):
         kernels_gradient = np.squeeze(convolution(self.input, output_gradient, self.padding, self.stride, self.convolution_type))
 
-        padded = np.pad(output_gradient, pad_width = self.kernel_shape[0] - 1)
-        flipped = np.fliplr(np.flipud(self.kernels))
-        input_gradient = np.squeeze(convolution(padded, flipped, self.padding, self.stride, self.convolution_type))
+        # padded = np.pad(output_gradient, pad_width = self.kernel_shape[0] - 1)
+        # flipped = np.fliplr(np.flipud(self.kernels))
+        # input_gradient = np.squeeze(convolution(padded, flipped, self.padding, self.stride, self.convolution_type))
 
         self.kernels -= lr * kernels_gradient
         self.bias -= lr * output_gradient
         
-        return input_gradient
+        # return input_gradient
        
     

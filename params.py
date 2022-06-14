@@ -41,10 +41,22 @@ network = (
 infer_shape(network, x_train[0].shape)
 
 ## HYPER PARAMETERS.
-lr = 0.001
+lr = 0.02
 num_epochs = 5
 
 ## TRAIN, TEST, EXPLANATION.
 train(network, categorical_cross_entropy, categorical_cross_entropy_deriv, x_train, y_train,num_epochs, lr)
 test(network, x_test, y_test)
 saliency_map(network, categorical_cross_entropy, x_test[4], y_test[4])
+
+## DEEPER LOOK.
+kernels = network[0].kernels
+num_kernels = kernels.shape[-1]
+for n in range(num_kernels):
+    kernel = kernels[..., n]
+    plt.subplot(2, int(np.floor(num_kernels/2)), n + 1)
+    plt.imshow(kernel, cmap = 'hot')
+    plt.colorbar()
+
+plt.title('trained convolution kernels')
+plt.show()
