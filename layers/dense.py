@@ -3,21 +3,24 @@ import numpy as np
 from layers.layer import Layer
 
 class Dense(Layer):
-    def __init__(self, input_size, output_size):
-        self.weights = np.random.rand(output_size, input_size) / (output_size * input_size)
-        self.bias = np.zeros((output_size, 1))
+    def __init__(self, output_shape):
+        if hasattr(output_shape, "__len__"):
+            self.output_shape = output_shape
+        else:
+            self.output_shape = (output_shape,)
+    
+    def infer_shape(self, input_shape):
+        self.input_shape = input_shape
+        self.weights = np.random.rand(*self.output_shape, *self.input_shape) / (int(self.output_shape[0]) * int(self.input_shape[0]))
+        self.bias = np.zeros((*self.output_shape, 1))
+        return self.output_shape
 
     def forward(self, input):
-        # start = time.time()
         self.input = input.flatten()[np.newaxis]
-        # end = time.time()
-        # print('forward dense -- time elapsed : ', end - start)
-        # print(input.shape)
         return self.weights @ self.input.T + self.bias
         
     
     def backward(self, grad0, learning_rate):
-        # start = time.time()
         if grad0.ndim < 2:
             grad0 = grad0[np.newaxis]
         elif grad0.ndim > 2:
@@ -29,6 +32,5 @@ class Dense(Layer):
         
         self.weights -= learning_rate * weights_gradient
         self.bias -= learning_rate * bias_gradient
-        # end = time.time()
-        # print('backward dense -- time elapsed : ', end - start)
+        
         return input_gradient

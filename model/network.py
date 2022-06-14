@@ -1,6 +1,5 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from numba import cuda, jit
 
 # @cuda.jit
 def preprocessing(x_train, x_test, y_train, y_test):
@@ -11,7 +10,7 @@ def preprocessing(x_train, x_test, y_train, y_test):
         x_train = np.squeeze(x_train)
         x_test = np.squeeze(x_test)
 
-    print('Normalizing samples')
+    print('normalizing samples')
     x_train = x_train / 255
     x_test = x_test / 255
 
@@ -22,12 +21,16 @@ def preprocessing(x_train, x_test, y_train, y_test):
         print(' ', values[i], '   :  ', counts[i])
 
     values, counts = np.unique(y_test, return_counts = True)
-    num_classes = len(values)
     print('----testing----')
     print('labels : counts')
     for i in range(len(values)):
         print(' ', values[i], '   :  ', counts[i])
-    return num_classes, (x_train, y_train), (x_test, y_test)
+    return (x_train, y_train), (x_test, y_test)
+
+def infer_shape(network, input_shape):
+    print('---inferring shapes---')
+    for layer in network:
+        input_shape = layer.infer_shape(input_shape)
 
 def predict(network, input):
     outputs = []
@@ -56,14 +59,11 @@ def train(network, loss, loss_deriv, x_train, y_train, num_epochs, lr):
                 error = 0
 
             grad = loss_deriv(label, output)
-            # print(grad.shape)
-            # print('Grad 0 : ', grad.T)
             for layer in reversed(network):
-                # print(grad.shape)
                 grad = layer.backward(grad, lr)
         
         error /= x_train.shape[0]
-        print(f"{epoch + 1}/{num_epochs}, error={float(error)}")
+        print(f"{epoch + 1}/{num_epochs}, error = {float(error)}")
 
 def test(network, x_test, y_test):
     counter = 0
@@ -91,11 +91,13 @@ def saliency_map(network, loss, input, label):
             map[i, j] = 100*(best_loss - new_loss) / best_loss
 
     plt.subplot(1,2,1)
-    plt.imshow(input[..., 0], cmap = 'hot')
+    plt.imshow(input[..., 0], cmap = 'gray')
+    plt.title('input image')
     plt.colorbar()
 
     plt.subplot(1,2,2)
     plt.imshow(map, cmap = 'hot')
+    plt.title('saliency map (percent of contribution)')
     plt.colorbar()
     plt.show()
 

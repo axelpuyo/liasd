@@ -1,5 +1,5 @@
 import numpy as np
-import time
+# import time
 
 from layers.layer import Layer
 from utils.convolutions import convolution
@@ -10,17 +10,19 @@ class Convolutional(Layer):
         self.kernel_shape = kernel_shape
         self.padding = padding
         self.stride = stride
-
-        # self.kernels = np.ones((kernel_shape))
         self.kernels = np.random.randn(*self.kernel_shape) / (self.kernel_shape[0] * self.kernel_shape[1])
+
+    def infer_shape(self, input_shape):
+        self.input_shape = input_shape
+        self.output_shape = ((input_shape[0] - self.kernel_shape[0] + 2*self.padding[0] )//self.stride[0] + 1, (input_shape[1] - self.kernel_shape[1] + 2*self.padding[1])//self.stride[0] + 1, self.kernel_shape[2]) 
+        
+        return self.output_shape
 
     def forward(self, input):
         self.input = input
-        self.input_shape = input.shape
-        self.output_shape = ((self.input_shape[0] - self.kernel_shape[0] + 2*self.padding[0] )//self.stride[0] + 1, (self.input_shape[1] - self.kernel_shape[1] + 2*self.padding[1])//self.stride[0] + 1, self.kernel_shape[2]) 
         self.bias = np.zeros((self.output_shape))
-
         self.output = convolution(input, self.kernels, self.padding, self.stride, self.convolution_type) + self.bias # Z = conv(K, X) + B
+        
         return self.output
     
     def backward(self, output_gradient, lr):
@@ -32,6 +34,7 @@ class Convolutional(Layer):
 
         self.kernels -= lr * kernels_gradient
         self.bias -= lr * output_gradient
+        
         return input_gradient
        
     
