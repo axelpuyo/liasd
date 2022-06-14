@@ -1,12 +1,15 @@
 import numpy as np
+import matplotlib.pyplot as plt
+from numba import cuda, jit
 
+# @cuda.jit
 def preprocessing(x_train, x_test, y_train, y_test):
-    # if x_train.ndim < 4:
-     #     x_train = x_train[..., np.newaxis]
-    #     x_test = x_test[..., np.newaxis]
-    # if x_train.ndim > 4:
-    #     x_train = np.squeeze(x_train)
-    #     x_test = np.squeeze(x_test)
+    if x_train.ndim < 4:
+        x_train = x_train[..., np.newaxis]
+        x_test = x_test[..., np.newaxis]
+    if x_train.ndim > 4:
+        x_train = np.squeeze(x_train)
+        x_test = np.squeeze(x_test)
 
     print('Normalizing samples')
     x_train = x_train / 255
@@ -74,3 +77,27 @@ def test(network, x_test, y_test):
 
 def confusion_matrix():
     pass
+
+def saliency_map(network, loss, input, label):
+    output = predict(network, input)
+    best_loss = loss(label, output)
+    map = np.zeros(input.shape)
+    print('-- computing saliency map ---')
+    for i in range(input.shape[0]):
+        for j in range(input.shape[1]):
+            new_input = input - input[i, j]
+            new_output = predict(network, new_input)
+            new_loss = loss(label, new_output)
+            map[i, j] = 100*(best_loss - new_loss) / best_loss
+
+    plt.subplot(1,2,1)
+    plt.imshow(input[..., 0], cmap = 'hot')
+    plt.colorbar()
+
+    plt.subplot(1,2,2)
+    plt.imshow(map, cmap = 'hot')
+    plt.colorbar()
+    plt.show()
+
+
+

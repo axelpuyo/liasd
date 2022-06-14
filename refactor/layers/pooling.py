@@ -1,3 +1,4 @@
+# import time
 import numpy as np
 from layers.layer import Layer
 from utils.mask_generator import yield_mask
@@ -12,6 +13,8 @@ class Pooling(Layer):
         return np.amax(input)
 
     def forward(self, input):
+        # start = time.time()
+        
         self.input = input
         input = np.pad(input, pad_width = self.padding[0])
         h = (input.shape[0] - self.mask_size[0] + 2*self.padding[0])//self.stride[0] + 1
@@ -22,12 +25,15 @@ class Pooling(Layer):
         for mask, i, j, k in yield_mask(input, self.mask_size, self.stride):
             self.output[i//self.stride[0], j//self.stride[1], k] = self.pool(mask)
         
+        # end = time.time()
+        # print('forward pooling -- time elapsed : ', end - start)
         return self.output
 
     def backward(self, grad0, *args): # This isn't taking into account the stride.
         '''
         :grad0: previous gradient.
         '''
+        # start = time.time()
         grad = np.zeros(self.input.shape)
         for mask, i, j, k in yield_mask(self.input, self.mask_size, self.stride):
             pooled_value = self.output[i//self.stride[0], j//self.stride[1], k]
@@ -36,5 +42,6 @@ class Pooling(Layer):
                 for y in range(self.mask_size[1]):
                     if self.input[i + x, j + y, k] == pooled_value:
                         grad[i + x, j + y, k] = grad0[i//self.stride[0], j//self.stride[1], k]
-        
+        # end = time.time()
+        # print('backward pooling -- time elapsed : ', end - start)
         return grad

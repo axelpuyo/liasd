@@ -13,7 +13,7 @@ def binary_cross_entropy_deriv(y_true, y_pred):
     return ((1 - y_true) / (1 - y_pred) - y_true / y_pred) / np.size(y_true)
 
 def categorical_cross_entropy(y_true, y_pred):
-    return - np.log(y_pred[int(y_true)])
+    return - np.log(y_pred[y_true])
 
 def categorical_cross_entropy_deriv(y_true, y_pred):
     grad0 = np.zeros((10,))

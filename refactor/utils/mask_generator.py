@@ -1,13 +1,15 @@
 import numpy as np
+from numba import jit, cuda
 
+# @jit(nopython=True)
 def yield_mask(input, window_size, window_stride):
-        if input.ndim > 3:
-            input = np.squeeze(input)
-        if input.ndim == 2:
-            (height, width) = input.shape
-            channels = 1
-        else:
-            (height, width, channels) = input.shape
+        # if input.ndim > 3:
+        #     input = np.squeeze(input)
+        # if input.ndim == 2:
+        #     (height, width) = input.shape
+        #     channels = 1
+        # else:
+        (height, width, channels) = input.shape
             
         for i in range(0, height, window_stride[0]):
             if i + window_size[0] > height:

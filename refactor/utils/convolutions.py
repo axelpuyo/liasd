@@ -1,8 +1,7 @@
+from utils import mask_generator
+import numpy as np
 
 def convolution(input, kernel, padding, stride, type): # numpy arrays
-    from utils import mask_generator
-    import numpy as np
-
     if kernel.ndim > 2:
         num_filters = kernel.shape[2]
     else:

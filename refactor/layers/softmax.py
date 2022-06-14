@@ -1,10 +1,14 @@
+# import time
 import numpy as np
 from layers.layer import Layer
 
 class Softmax(Layer):
     def forward(self, input):
+        # start = time.time()
         tmp = np.exp(input - np.max(input))
         self.output = tmp / np.sum(tmp)
+        # end = time.time()
+        # print('forward softmax -- time elapsed : ', end - start)
         return self.output
 
     def backward(self, grad0, *args):
@@ -14,11 +18,14 @@ class Softmax(Layer):
         Returns D (T, T) the Jacobian matrix of softmax(z) at the given z. D[i, j]
         is DjSi - the partial derivative of Si w.r.t. input j.
         """
+        # start = time.time()
         Sz = self.output
         # -SjSi can be computed using an outer product between Sz and itself. Then
         # we add back Si for the i=j cases by adding a diagonal matrix with the
         # values of Si on its diagonal.
         D = -np.outer(Sz, Sz) + np.diag(Sz.flatten())
+        # end = time.time()
+        # print('backward softmax -- time elapsed : ', end - start)
         return D @ np.squeeze(grad0)
     
     # def backward(self, grad0, *args):
