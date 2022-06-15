@@ -41,6 +41,8 @@ def predict(network, input):
     return output
 
 def train(network, loss, loss_deriv, x_train, y_train, num_epochs, lr):
+    values = np.unique(y_train, return_counts = False)
+    num_outputs = len(values)
     for epoch in range(num_epochs):
         error = 0
         shuffle_order = np.random.permutation(len(x_train))
@@ -49,22 +51,21 @@ def train(network, loss, loss_deriv, x_train, y_train, num_epochs, lr):
 
         for i, (input, label) in enumerate(zip(x_train, y_train)):
             output = predict(network, input)
-            error += loss(label, output)
+            error += loss(label, output, num_outputs)
             if i % (x_train.shape[0] / 10) == 0:
                 if i == 0:
                     error = 0
-                print(i / (x_train.shape[0] / 10), '/ 10 steps -- average loss : ', float(error / (x_train.shape[0] / 10)))
+                print('# ', i / (x_train.shape[0] / 10), '/ 10th of dataset seen - batch average loss : ', np.round(float(error / (x_train.shape[0] / 10)), 1), '% #')
                 print('pred : ', np.argmax(output), 'true : ', int(label))
                 print('p_val : ', round(float(output[np.argmax(output)]), 3) , 't_val : ', round(float(output[int(label)]), 3))
                 error = 0
 
-            print('here', output.shape)
             grad = loss_deriv(label, output)
             for layer in reversed(network):
                 grad = layer.backward(grad, lr)
         
         error /= x_train.shape[0]
-        print(f"{epoch + 1}/{num_epochs}, error = {float(error)}")
+        print(f"## running epoch {epoch + 1}/{num_epochs}, accuracy = {np.round(float(error), 1)}%")
 
 def test(network, x_test, y_test):
     counter = 0
@@ -74,27 +75,29 @@ def test(network, x_test, y_test):
         if np.argmax(output) == int(y):
             counter += 1
 
-    print('acc : ', counter/i)
+    print('acc : ', np.round(100*counter/i, 1), '%')
 
 def confusion_matrix():
     pass
 
-def saliency_map(network, loss, input, label):
+def saliency_map(network, loss, input, label): # Takes SUPER long. Implement RISE instead ?
+    from utils.label_names import get_string
+
+    plt.subplot(1,2,1)
+    plt.imshow(input[..., 0], cmap = 'gray')
+    plt.title(get_string('cifar10', label))
+    plt.colorbar()
+
     output = predict(network, input)
-    best_loss = loss(label, output)
+    best_loss = loss(label, output, 10) # 10 nombre de classes
     map = np.zeros(input.shape)
     print('-- computing saliency map ---')
     for i in range(input.shape[0]):
         for j in range(input.shape[1]):
             new_input = input - input[i, j]
             new_output = predict(network, new_input)
-            new_loss = loss(label, new_output)
-            map[i, j] = 100*(best_loss - new_loss) / best_loss
-
-    plt.subplot(1,2,1)
-    plt.imshow(input[..., 0], cmap = 'gray')
-    plt.title('input image')
-    plt.colorbar()
+            new_loss = loss(label, new_output, 10) # ce 3 c'est num_outputs
+            map[i, j] = best_loss - new_loss
 
     plt.subplot(1,2,2)
     plt.imshow(map, cmap = 'hot')

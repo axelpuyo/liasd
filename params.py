@@ -7,21 +7,22 @@ from layers.pooling import Pooling
 from layers.dense import Dense
 from layers.reshape import Reshape
 from layers.softmax import Softmax
-from utils.dataReader import get_data
+from utils.data_reader import get_data
 from losses.losses import categorical_cross_entropy, categorical_cross_entropy_deriv
 from model.network import *
 
 ## DATA FETCHING & PREPROCESSING.
 dims = 1
-num = 200
-(x_train, y_train), (x_test, y_test) = get_data('colors', num, dims)
+num_train = 400
+num_test = 100
+(x_train, y_train), (x_test, y_test) = get_data('mnist', num_train, num_test, dims)
 (x_train, y_train), (x_test, y_test) = preprocessing(x_train, x_test, y_train, y_test)
 
 ## MODEL PARAMETERS.
 values = np.unique(y_test, return_counts = False)
 num_outputs = len(values)
 
-filter_size = [3, 3, 8]
+filter_size = [3, 3, 15]
 filter_padding = [0, 0]
 filter_stride = [1, 1]
 
@@ -41,7 +42,7 @@ network = (
 infer_shape(network, x_train[0].shape)
 
 ## HYPER PARAMETERS.
-lr = 0.02
+lr = 0.005
 num_epochs = 5
 
 ## TRAIN, TEST, EXPLANATION.
@@ -54,7 +55,7 @@ kernels = network[0].kernels
 num_kernels = kernels.shape[-1]
 for n in range(num_kernels):
     kernel = kernels[..., n]
-    plt.subplot(2, int(np.floor(num_kernels/2)), n + 1)
+    plt.subplot(2, int(np.floor(num_kernels/2)) + 1, n + 1)
     plt.imshow(kernel, cmap = 'hot')
     plt.colorbar()
 

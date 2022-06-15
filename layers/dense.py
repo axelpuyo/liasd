@@ -26,9 +26,13 @@ class Dense(Layer):
         elif grad0.ndim > 2:
             grad0 = np.squeeze(grad0)
         
-        weights_gradient = grad0.T @ self.input
-        input_gradient =  grad0 @ self.weights
-        bias_gradient = grad0.T
+        # print(grad0.shape, self.input.shape)
+        # weights_gradient = grad0.T @ self.input
+        # input_gradient =  grad0 @ self.weights
+        # bias_gradient = grad0.T
+        weights_gradient = grad0 @ self.input
+        input_gradient =  grad0.T @ self.weights
+        bias_gradient = grad0
         
         self.weights -= learning_rate * weights_gradient
         self.bias -= learning_rate * bias_gradient

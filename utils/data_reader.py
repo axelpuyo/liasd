@@ -1,15 +1,15 @@
 ## DATASET
 import numpy as np
 
-def get_data(str, num, dims):
+def get_data(str, num_train, num_test, dims):
     if str == 'cifar10':
         from keras.datasets import cifar10
         (x_train, y_train), (x_test, y_test) = cifar10.load_data()
 
-        x_train = np.squeeze(x_train[:num])
-        y_train = y_train[:num]
-        x_test = np.squeeze(x_test[:num])
-        y_test = y_test[:num]
+        x_train = np.squeeze(x_train[:num_train])
+        y_train = y_train[:num_train]
+        x_test = np.squeeze(x_test[:num_test])
+        y_test = y_test[:num_test]
 
         if dims != 0:
             x_train = np.repeat(x_train[..., np.newaxis], dims, axis = -1)
@@ -20,10 +20,10 @@ def get_data(str, num, dims):
         (x_train, y_train), (x_test, y_test) = mnist.load_data()
 
         # put in kwargs
-        x_train = x_train[:num]
-        y_train = y_train[:num]
-        x_test = x_test[:num]
-        y_test = y_test[:num]
+        x_train = x_train[:num_train]
+        y_train = y_train[:num_train]
+        x_test = x_test[:num_test]
+        y_test = y_test[:num_test]
         
         # put in kwargs
         if dims != 0:
@@ -32,6 +32,6 @@ def get_data(str, num, dims):
 
     elif str == 'colors':
         from utils.dataset_creator import colors_load
-        (x_train, y_train), (x_test, y_test) = colors_load(1300, 200)
+        (x_train, y_train), (x_test, y_test) = colors_load(num_train, num_test)
     
     return (x_train, y_train), (x_test, y_test)
